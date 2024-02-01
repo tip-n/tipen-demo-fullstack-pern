@@ -7,7 +7,8 @@
       "@tools/*": ["./tools/*"],
       "@repositories/*": ["./repositories/*"],
       "@routes/*": ["./routes/*"],
-      "@services/*": ["./services/*"],
+      "@controller/*": ["controller/*"],
+      "@middlewares/*": ["middlewares/*"],
     },                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     "outDir": "./dist",                                   /* Specify an output folder for all emitted files. */
     "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */

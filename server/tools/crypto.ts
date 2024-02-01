@@ -3,9 +3,10 @@ import bcrypt from "bcrypt"
 const saltRounds = 10;
 
 export const hashPassword = (password: string) => {
-    let hashedPassword = ""
-    bcrypt.hash(password, saltRounds, (err: any, hash: string) => {
-        hashedPassword = hash
-    });
-    return hashedPassword
+    const salt = bcrypt.genSaltSync(saltRounds);
+    return bcrypt.hashSync(password, salt)
+}
+
+export const comparePassword = (password: string, hash: string) => {
+    return bcrypt.compareSync(password, hash);
 }
