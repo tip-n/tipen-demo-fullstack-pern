@@ -6,6 +6,7 @@ import 'dotenv/config'
 
 import indexRouter from "@routes/index"
 import usersRouter from "@routes/users"
+import sellersRouter from "@routes/sellers"
 
 var app = express();
 const port = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/sellers', sellersRouter);
 
 app.listen(port, () => {
   console.log(`server running at port : ${port}`)

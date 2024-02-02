@@ -7,25 +7,24 @@ import { generateJWT } from "@tools/jwt";
 import { logger } from "@tools/winston";
 
 
-export const registerUserController = async (req: Request, res: Response) => {
+export const registerSellerController = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({ error: errors.array()[0].msg });
       return
     }
 
-    const { firstname, lastname, password, email } = req.body
+    const { storename, password, email } = req.body
     const hashed = hashPassword(password)
     try {
-        const user = await prisma.users.create({
+        const seller = await prisma.sellers.create({
             data: {
-                firstname: firstname,
-                lastname: lastname,
+                storename: storename,
                 email: email,
                 password: hashed
             }
         })
-        res.status(200).json({ user_id: user.id })
+        res.status(200).json({ seller_id: seller.id })
     } catch (err) {
         logger.error(err)
         res.status(500).json({ error: "internal server error"})
@@ -33,7 +32,7 @@ export const registerUserController = async (req: Request, res: Response) => {
 }
 
 
-export const loginUserController = async (req: Request, res: Response) => {
+export const loginSellerController = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         res.status(400).json({ error: errors.array()[0].msg });
@@ -42,25 +41,25 @@ export const loginUserController = async (req: Request, res: Response) => {
 
     const { email, password } = req.body
     try {
-        const user = await prisma.users.findFirst({
+        const seller = await prisma.sellers.findFirst({
             select: {id: true, password: true},
             where: {email: email}
         })
-        if (!user) {
-            res.status(500).json({ error: "username atau password salah" })
+        if (!seller) {
+            res.status(500).json({ error: "email atau password salah" })
             return
         }
-        if (!comparePassword(password, user.password)) {
-            res.status(500).json({ error: "username atau password salah" })
+        if (!comparePassword(password, seller.password)) {
+            res.status(500).json({ error: "email atau password salah" })
         }
 
-        await prisma.user_logins.create({
+        await prisma.seller_logins.create({
             data: {
-                user_id: user.id
+                seller_id: seller.id
             }
         })
 
-        const access_token = generateJWT({user_id: user.id})
+        const access_token = generateJWT({seller_id: seller.id})
         res.status(200).json({ access_token })
     } catch (err) {
         logger.error(err)
@@ -68,7 +67,7 @@ export const loginUserController = async (req: Request, res: Response) => {
     }
 }
 
-export const getUserProfileController = async (req: Request, res: Response) => {
+export const getSellerProfileController = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         res.status(400).json({ error: errors.array()[0].msg })
@@ -76,38 +75,32 @@ export const getUserProfileController = async (req: Request, res: Response) => {
     }
     
     try {
-        const user = await prisma.users.findFirst({
-            select: {firstname: true, lastname: true, email: true},
-            where: {id: res.locals.user_id}
+        const seller = await prisma.sellers.findFirst({
+            select: {storename: true, email: true},
+            where: {id: res.locals.seller_id}
         })
-        if (!user) {
+        if (!seller) {
             res.status(500).json({ error: "invalid credential"})
             return
         }
-        res.status(200).json({ ...user })
+        res.status(200).json({ ...seller })
     } catch (err) {
         logger.error(err)
         res.status(500).json({ error: "internal server error" })
     }
 }
 
-export const updateUserProfileController = async (req: Request, res: Response) => {
+export const updateSellerProfileController = async (req: Request, res: Response) => {
     try {
         let data = {}
-        if (req.body.firstname) {
+        if (req.body.storename) {
             data = {
                 ...data,
-                firstname: req.body.firstname,
+                storename: req.body.storename,
             }
         }
-        if (req.body.lastname) {
-            data = {
-                ...data,
-                lastname: req.body.lastname,
-            }
-        }
-        await prisma.users.update({
-            where: {id: res.locals.user_id},
+        await prisma.sellers.update({
+            where: {id: res.locals.seller_id},
             data
         })
         res.status(200).json("successfully updated")

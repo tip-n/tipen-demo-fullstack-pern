@@ -5,7 +5,7 @@ import { tokenValidation } from "@middlewares/auth";
 import { prisma } from "@tools/prisma";
 import { decodeJWT } from "@tools/jwt";
 
-export const authorizeUser = (
+export const authorizeSeller = (
   req: Request,
   res: Response,
   next: () => void,
@@ -24,7 +24,7 @@ export const authorizeUser = (
       if (typeof(decoded) == 'string') {
           throw new Error(decoded)    
       }
-      res.locals.user_id = decoded.user_id
+      res.locals.seller_id = decoded.seller_id
       res.locals.authenticated = true
       next()
   } catch (err) {
@@ -33,32 +33,32 @@ export const authorizeUser = (
   }
 }
 
-export const validateRegisterUser = [
-  body('firstname').notEmpty().withMessage("nama pertama tidak boleh kosong").bail({ level: "request" }),
+export const validateRegisterSeller = [
+  body('storename').notEmpty().withMessage("nama toko tidak boleh kosong").bail({ level: "request" }),
   body('email').notEmpty().withMessage("email tidak boleh kosong").bail({ level: "request" }),
   body('email').custom(async value => {
-      const user = await prisma.users.findFirst({
+      const seller = await prisma.sellers.findFirst({
           select: {email: true},
           where: {email: value}
       })
-      if (user) {
+      if (seller) {
         throw new Error('email sudah terdaftar');
       }
     }).bail({ level: "request" }),
   body('password').notEmpty().withMessage("password tidak boleh kosong").bail({ level: "request" })
 ]
 
-export const validateLoginuser = [
+export const validateLoginseller = [
   body('email').notEmpty().withMessage("email tidak boleh kosong").bail({ level: "request" }),
   body('password').notEmpty().withMessage("password tidak boleh kosong").bail({ level: "request" })
 ]
 
-export const validateGetUserProfile = [
+export const validateGetSellerProfile = [
   tokenValidation,
-  authorizeUser,
+  authorizeSeller,
 ]
 
-export const validateUpdateUserProfileFields = (
+export const validateUpdateSellerProfileFields = (
   req: Request,
   res: Response,
   next: () => void,
@@ -70,8 +70,8 @@ export const validateUpdateUserProfileFields = (
   next() 
 }
 
-export const validateUpdateUserProfile = [
+export const validateUpdateSellerProfile = [
   tokenValidation,
-  authorizeUser,
-  validateUpdateUserProfileFields,
+  authorizeSeller,
+  validateUpdateSellerProfileFields,
 ]

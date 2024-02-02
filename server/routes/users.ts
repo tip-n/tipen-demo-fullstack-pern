@@ -3,12 +3,14 @@ import {Router, Request, Response} from "express"
 import {
   getUserProfileController,
   loginUserController,
-  registerUserController
+  registerUserController,
+  updateUserProfileController
 } from "controller/users";
 import {
   validateGetUserProfile,
   validateLoginuser,
-  validateRegisterUser
+  validateRegisterUser,
+  validateUpdateUserProfile
 } from "middlewares/user";
 
 const router = Router();
@@ -20,5 +22,6 @@ router.get('/', (req: Request, res: Response, next) => {
 router.post('/register', ...validateRegisterUser, registerUserController);
 router.post('/login', ...validateLoginuser, loginUserController);
 router.get("/profile", ...validateGetUserProfile, getUserProfileController);
+router.put("/profile", ...validateUpdateUserProfile, updateUserProfileController);
 
 export default router
